@@ -36,15 +36,13 @@ func main() {
 		log.Fatalf("unable to create output directory %q: %v", *outputDirectory, err)
 	}
 
-	writeConfigFile(*outputDirectory)
-
 	export, err := readXML(flag.Arg(0))
 	if err != nil {
 		log.Fatalf("error reading export xml: %v", err)
 	}
 
-	fmt.Printf("Blog Name: %s\n", export.Channel.Title)
-	fmt.Printf(" Base URL: %s\n", export.Channel.BaseSiteURL)
+	writeConfigFile(*outputDirectory)
+	writeGlobalDataFiles(*outputDirectory, export)
 
 	fmt.Println("== Writing Pages")
 	for _, item := range export.Channel.Items {
@@ -65,6 +63,20 @@ func writeConfigFile(base string) {
 	}
 	defer f.Close()
 	f.WriteString(configJs)
+}
+
+func writeGlobalDataFiles(base string, export *BlogExport) error {
+	dataDir := filepath.Join(base, "_data")
+	if err := os.MkdirAll(dataDir, 0700); err != nil {
+		return err
+	}
+	if err := writeBlogData(dataDir, export); err != nil {
+		return err
+	}
+	if err := writeAuthorData(dataDir, export); err != nil {
+		return err
+	}
+	return nil
 }
 
 func writeOutPage(base string, item Item) error {
@@ -92,14 +104,22 @@ func writeOutPage(base string, item Item) error {
 		return err
 	}
 
-	// front matter
+	categories := make(map[string][]string)
+	for _, cat := range item.Categories {
+		categories[cat.Domain] = append(categories[cat.Domain], cat.Text)
+	}
+
 	f.WriteString("---\n")
 	fmt.Fprintf(f, "title: %s\n", item.Title)
-	fmt.Fprintf(f, "permalink: %s\n", u.Path) // TODO: ?
+	//	fmt.Fprintf(f, "permalink: %s\n", u.Path) // TODO: Should be doing this?
 	fmt.Fprintf(f, "date: %s\n", postDate.Format(OUTPUT_DATE_FORMAT))
-	fmt.Fprintf(f, "tags: \n") // TODO
+	fmt.Fprintf(f, "tags: %s\n", item.PostType) // TODO: Add tags too?
+	for domain, values := range categories {
+		fmt.Fprintf(f, "%s: %s\n", domain, strings.Join(values, " "))
+	}
 	f.WriteString("---\n")
 
+	// TODO: What to do with the excerpt.
 	for _, el := range item.Contents {
 		if el.XMLName.Space == CONTENT_NS {
 			f.WriteString(el.Data)
