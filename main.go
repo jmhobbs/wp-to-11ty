@@ -34,7 +34,7 @@ func main() {
 	)
 
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "usage: %s [options] <wordpress-export.xml>", os.Args[0])
+		fmt.Fprintf(flag.CommandLine.Output(), "usage: %s [options] <wordpress-export.xml>\n\noptions:\n", os.Args[0])
 		flag.PrintDefaults()
 	}
 
