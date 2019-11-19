@@ -4,7 +4,9 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
@@ -21,9 +23,14 @@ const (
 	OUTPUT_DATE_FORMAT string = "2006-01-02T15:04:05"
 )
 
+func init() {
+	log.SetFlags(log.Ltime)
+}
+
 func main() {
 	var (
 		outputDirectory *string = flag.String("output", "./site", "Directory to output 11ty site to.")
+		downloadMedia   *bool   = flag.Bool("download-media", false, "Download media files to local filesystem.")
 	)
 
 	flag.Usage = func() {
@@ -61,6 +68,11 @@ func main() {
 	log.Println("Writing out pages and posts...")
 	writePagesAndPosts(*outputDirectory, export)
 
+	if *downloadMedia {
+		log.Println("Downloading attachments...")
+		downloadAttachments(*outputDirectory, export)
+	}
+
 	log.Println("Installing npm packages...")
 	if err = npmInstall(*outputDirectory); err != nil {
 		log.Println(err)
@@ -82,6 +94,49 @@ func writePagesAndPosts(base string, export *BlogExport) {
 			}
 		}
 	}
+}
+
+func downloadAttachments(base string, export *BlogExport) {
+	for _, item := range export.Channel.Items {
+		if item.PostType == "attachment" {
+			log.Printf("  - %s", item.AttachmentURL)
+			// TODO: Generate pages for these?
+			u, err := url.Parse(item.AttachmentURL)
+			if err != nil {
+				log.Printf("%s: %v", color.RedString("    unable to download"), err)
+				continue
+			}
+			localPath := filepath.Join(base, u.Path)
+			if _, err = os.Stat(localPath); err == nil {
+				log.Println(color.BlueString("    File exists:"), localPath)
+			} else {
+				err = downloadFile(localPath, item.AttachmentURL)
+				if err != nil {
+					log.Printf("%s: %v", color.RedString("    unable to download"), err)
+				}
+			}
+		}
+	}
+}
+
+func downloadFile(dest, attachmentURL string) error {
+	if err := os.MkdirAll(filepath.Dir(dest), 0700); err != nil {
+		return err
+	}
+	f, err := os.Create(dest)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	resp, err := http.Get(attachmentURL)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	_, err = io.Copy(f, resp.Body)
+	return err
 }
 
 func writeOutPage(base string, item Item) error {
