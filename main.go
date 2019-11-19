@@ -7,9 +7,18 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/fatih/color"
+	yaml "gopkg.in/yaml.v2"
+)
+
+const (
+	POST_DATE_FORMAT   string = "2006-01-02 15:04:05"
+	OUTPUT_DATE_FORMAT string = "2006-01-02T15:04:05"
 )
 
 func main() {
@@ -41,42 +50,38 @@ func main() {
 		log.Fatalf("error reading export xml: %v", err)
 	}
 
-	writeConfigFile(*outputDirectory)
-	writeGlobalDataFiles(*outputDirectory, export)
+	log.Println("Writing scaffolding files...")
+	if err = writeStaticFiles(*outputDirectory, export); err != nil {
+		log.Fatal(err)
+	}
+	if err = writeGlobalDataFiles(*outputDirectory, export); err != nil {
+		log.Fatal(err)
+	}
 
-	fmt.Println("== Writing Pages")
+	log.Println("Writing out pages and posts...")
+	writePagesAndPosts(*outputDirectory, export)
+
+	log.Println("Installing npm packages...")
+	if err = npmInstall(*outputDirectory); err != nil {
+		log.Println(err)
+	}
+
+	log.Println("Done!")
+	log.Printf(`You can now switch to the "%s" directory and run "%s"`, color.CyanString(*outputDirectory), color.CyanString("eleventy --serve"))
+}
+
+func writePagesAndPosts(base string, export *BlogExport) {
 	for _, item := range export.Channel.Items {
-		if item.PostType == "page" {
-			fmt.Println(item.Title)
-			err = writeOutPage(*outputDirectory, item)
-			if err != nil {
+		if item.PostType == "page" || item.PostType == "post" {
+			if item.Status == "draft" {
+				log.Println(color.YellowString("Skipping draft:"), item.Title)
+				continue
+			}
+			if err := writeOutPage(base, item); err != nil {
 				log.Println(err)
 			}
 		}
 	}
-}
-
-func writeConfigFile(base string) {
-	f, err := os.Create(filepath.Join(base, ".eleventy.js"))
-	if err != nil {
-		log.Fatalf("unable to create eleventy config file: %v", err)
-	}
-	defer f.Close()
-	f.WriteString(configJs)
-}
-
-func writeGlobalDataFiles(base string, export *BlogExport) error {
-	dataDir := filepath.Join(base, "_data")
-	if err := os.MkdirAll(dataDir, 0700); err != nil {
-		return err
-	}
-	if err := writeBlogData(dataDir, export); err != nil {
-		return err
-	}
-	if err := writeAuthorData(dataDir, export); err != nil {
-		return err
-	}
-	return nil
 }
 
 func writeOutPage(base string, item Item) error {
@@ -104,22 +109,37 @@ func writeOutPage(base string, item Item) error {
 		return err
 	}
 
+	tags := []string{item.PostType}
 	categories := make(map[string][]string)
 	for _, cat := range item.Categories {
 		categories[cat.Domain] = append(categories[cat.Domain], cat.Text)
+		tags = append(tags, fmt.Sprintf("%s-%s", cat.Domain, cat.Text))
 	}
 
-	f.WriteString("---\n")
-	fmt.Fprintf(f, "title: %s\n", item.Title)
-	//	fmt.Fprintf(f, "permalink: %s\n", u.Path) // TODO: Should be doing this?
-	fmt.Fprintf(f, "date: %s\n", postDate.Format(OUTPUT_DATE_FORMAT))
-	fmt.Fprintf(f, "tags: %s\n", item.PostType) // TODO: Add tags too?
+	frontMatter := map[string]interface{}{
+		"title":  item.Title,
+		"date":   postDate.Format(OUTPUT_DATE_FORMAT),
+		"layout": "layout",
+		"tags":   tags,
+	}
 	for domain, values := range categories {
-		fmt.Fprintf(f, "%s: %s\n", domain, strings.Join(values, " "))
+		frontMatter[domain] = values
 	}
+	for _, el := range item.Contents {
+		if el.XMLName.Space == EXCERPT_NS && el.Data != "" {
+			frontMatter["summary"] = el.Data
+		}
+	}
+
+	fmBytes, err := yaml.Marshal(frontMatter)
+	if err != nil {
+		return err
+	}
+
+	f.WriteString("---\n")
+	f.Write(fmBytes)
 	f.WriteString("---\n")
 
-	// TODO: What to do with the excerpt.
 	for _, el := range item.Contents {
 		if el.XMLName.Space == CONTENT_NS {
 			f.WriteString(el.Data)
@@ -156,7 +176,10 @@ func readXML(path string) (*BlogExport, error) {
 	return &export, err
 }
 
-const (
-	POST_DATE_FORMAT   string = "2006-01-02 15:04:05"
-	OUTPUT_DATE_FORMAT string = "2006-01-02T15:04:05"
-)
+func npmInstall(siteDir string) error {
+	cmd := exec.Command("npm", "install")
+	cmd.Dir = siteDir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
