@@ -21,6 +21,9 @@
             <small>
               {{ page.date | strftime("LLL d, y") }}
               {%- if authors[creator].display_name -%}&nbsp;by <strong>{{ authors[creator].display_name }}</strong>{%- endif -%}
+              {%- for category in category -%}
+              <a href="/category/{{ category }}" class="responsive-margin">{{ category }}</a>
+              {%- endfor -%}
             </small>
           </p>
           {{ content | safe }}
