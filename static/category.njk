@@ -1,0 +1,20 @@
+---
+layout: layout.njk
+pagination:
+  data: collections.categories
+  size: 1
+  alias: category
+permalink: /category/{{ category }}/
+---
+<h1>Category: "{{ category }}"
+
+<ol>
+{% set taglist = collections.category[ category ] %}
+{% for post in taglist | reverse %}
+  <li>
+    <pre>{{ post | console }}</pre>
+    <a href="{{ post.url }}">{{ post.data.title }}</a>
+  </li>
+{% endfor %}
+</ol>
+

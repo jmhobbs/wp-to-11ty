@@ -164,20 +164,25 @@ func writeOutPage(base string, item Item) error {
 		return err
 	}
 
-	tags := []string{item.PostType}
+	tags := []string{}
 	categories := make(map[string][]string)
 	for _, cat := range item.Categories {
-		categories[cat.Domain] = append(categories[cat.Domain], cat.Text)
-		tags = append(tags, fmt.Sprintf("%s-%s", cat.Domain, cat.Text))
+		if cat.Domain == "post_tag" {
+			tags = append(tags, cat.Text)
+		} else {
+			categories[cat.Domain] = append(categories[cat.Domain], cat.Text)
+		}
 	}
 
 	frontMatter := map[string]interface{}{
+		"type":    item.PostType,
+		"layout":  "layout",
 		"title":   item.Title,
 		"date":    postDate.Format(OUTPUT_DATE_FORMAT),
-		"layout":  "layout",
-		"tags":    tags,
 		"creator": item.Creator,
+		"tags":    tags,
 	}
+
 	for domain, values := range categories {
 		frontMatter[domain] = values
 	}

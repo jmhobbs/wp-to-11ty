@@ -25,10 +25,10 @@
           </p>
           {{ content | safe }}
           <footer>
-          {%- if post_tag -%}
+          {%- if tags -%}
             Tags:
-            {%- for tag in post_tag -%}
-              <a href="" class="responsive-margin">{{ tag }}</a>
+            {%- for tag in tags -%}
+            <a href="/tags/{{ tag }}" class="responsive-margin">{{ tag }}</a>
             {%- endfor -%}
           {%- endif -%}
           </footer>

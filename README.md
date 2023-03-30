@@ -46,10 +46,11 @@ found 0 vulnerabilities
 - Post and Page export
 - Optional media download
 - Very basic starter layout
+- Tag stubs
+- Category stubs
 
 ## Planned
 
-- Tag and category sub-page stubs
 - Shortcode detection and warning
 
 ## Unlikely
