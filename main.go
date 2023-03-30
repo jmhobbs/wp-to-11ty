@@ -79,7 +79,7 @@ func main() {
 	}
 
 	log.Println("Done!")
-	log.Printf(`You can now switch to the "%s" directory and run "%s"`, color.CyanString(*outputDirectory), color.CyanString("eleventy --serve"))
+	log.Printf(`You can now switch to the "%s" directory and run "%s"`, color.CyanString(*outputDirectory), color.CyanString("npm run serve"))
 }
 
 func writePagesAndPosts(base string, export *BlogExport) {
@@ -172,10 +172,11 @@ func writeOutPage(base string, item Item) error {
 	}
 
 	frontMatter := map[string]interface{}{
-		"title":  item.Title,
-		"date":   postDate.Format(OUTPUT_DATE_FORMAT),
-		"layout": "layout",
-		"tags":   tags,
+		"title":   item.Title,
+		"date":    postDate.Format(OUTPUT_DATE_FORMAT),
+		"layout":  "layout",
+		"tags":    tags,
+		"creator": item.Creator,
 	}
 	for domain, values := range categories {
 		frontMatter[domain] = values

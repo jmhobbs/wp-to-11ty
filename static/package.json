@@ -1,0 +1,16 @@
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "description": "wp-to-11ty export",
+  "main": "",
+  "dependencies": {},
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1",
+    "luxon": "^1.21.2"
+  },
+  "scripts": {
+    "serve": "npx @11ty/eleventy --serve",
+    "build": "npx @11ty/eleventy"
+  },
+  "author": ""
+}

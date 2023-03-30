@@ -1,21 +1,36 @@
 package main
 
 import (
+	"embed"
 	"encoding/json"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
+//go:embed all:static
+var staticFiles embed.FS
+
 func writeStaticFiles(base string, export *BlogExport) error {
-	for filename, content := range staticFiles {
-		if err := writeFile(base, filename, content); err != nil {
+	return fs.WalkDir(staticFiles, "static", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
 			return err
 		}
-	}
-	return nil
+		if d.IsDir() {
+			return nil
+		}
+
+		content, err := staticFiles.ReadFile(path)
+		if err != nil {
+			return err
+		}
+
+		return writeFile(base, strings.TrimPrefix(path, "static/"), content)
+	})
 }
 
-func writeFile(base, filename, content string) error {
+func writeFile(base, filename string, content []byte) error {
 	fullPath := filepath.Join(base, filename)
 
 	if err := os.MkdirAll(filepath.Dir(fullPath), 0700); err != nil {
@@ -28,7 +43,7 @@ func writeFile(base, filename, content string) error {
 	}
 	defer f.Close()
 
-	_, err = f.WriteString(content)
+	_, err = f.Write(content)
 	return err
 }
 
