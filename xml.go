@@ -5,23 +5,16 @@ import "encoding/xml"
 type BlogExport struct {
 	XMLName xml.Name `xml:"rss"`
 	Channel struct {
-		Title       string   `xml:"title"`
-		Link        string   `xml:"link"`
-		Description string   `xml:"description"`
-		PubDate     string   `xml:"pubDate"`
-		Language    string   `xml:"language"`
-		BaseSiteURL string   `xml:"base_site_url"`
-		BaseBlogURL string   `xml:"base_blog_url"`
-		Authors     []Author `xml:"author"`
-		Categories  []struct {
-			Text        string `xml:",chardata"`
-			TermID      string `xml:"term_id"`
-			Nicename    string `xml:"category_nicename"`
-			Parent      string `xml:"category_parent"`
-			Name        string `xml:"cat_name"`
-			Description string `xml:"category_description"`
-		} `xml:"category"`
-		Tags []struct {
+		Title       string     `xml:"title"`
+		Link        string     `xml:"link"`
+		Description string     `xml:"description"`
+		PubDate     string     `xml:"pubDate"`
+		Language    string     `xml:"language"`
+		BaseSiteURL string     `xml:"base_site_url"`
+		BaseBlogURL string     `xml:"base_blog_url"`
+		Authors     []Author   `xml:"author"`
+		Categories  []Category `xml:"category"`
+		Tags        []struct {
 			TermID string `xml:"term_id"`
 			Slug   string `xml:"tag_slug"`
 			Name   string `xml:"tag_name"`
@@ -87,6 +80,15 @@ type Author struct {
 	DisplayName string `xml:"author_display_name" json:"display_name"`
 	FirstName   string `xml:"author_first_name" json:"first_name"`
 	LastName    string `xml:"author_last_name" json:"last_name"`
+}
+
+type Category struct {
+	Text        string `xml:",chardata" json:"-"`
+	TermID      string `xml:"term_id" json:"-"`
+	Nicename    string `xml:"category_nicename" json:"nice_name"`
+	Parent      string `xml:"category_parent" json:"parent"`
+	Name        string `xml:"cat_name" json:"name"`
+	Description string `xml:"category_description" json:"description"`
 }
 
 const (

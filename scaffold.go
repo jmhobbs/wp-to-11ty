@@ -52,12 +52,18 @@ func writeGlobalDataFiles(base string, export *BlogExport) error {
 	if err := os.MkdirAll(dataDir, 0700); err != nil {
 		return err
 	}
-	if err := writeBlogData(dataDir, export); err != nil {
-		return err
+
+	for _, fn := range []func(string, *BlogExport) error{
+		writeBlogData,
+		writeAuthorData,
+		writeCategoryData,
+		writePostTagData,
+	} {
+		if err := fn(dataDir, export); err != nil {
+			return err
+		}
 	}
-	if err := writeAuthorData(dataDir, export); err != nil {
-		return err
-	}
+
 	return nil
 }
 
@@ -90,4 +96,34 @@ func writeAuthorData(dataDir string, export *BlogExport) error {
 	}
 
 	return json.NewEncoder(f).Encode(authors)
+}
+
+func writeCategoryData(dataDir string, export *BlogExport) error {
+	f, err := os.Create(filepath.Join(dataDir, "categories.json"))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	categories := make(map[string]Category)
+	for _, category := range export.Channel.Categories {
+		categories[category.TermID] = category
+	}
+
+	return json.NewEncoder(f).Encode(categories)
+}
+
+func writePostTagData(dataDir string, export *BlogExport) error {
+	f, err := os.Create(filepath.Join(dataDir, "post_tags.json"))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	post_tags := make(map[string]string)
+	for _, tag := range export.Channel.Tags {
+		post_tags[tag.Name] = tag.Slug
+	}
+
+	return json.NewEncoder(f).Encode(post_tags)
 }
