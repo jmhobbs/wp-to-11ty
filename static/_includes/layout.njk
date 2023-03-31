@@ -19,10 +19,10 @@
           <h1>{{ title }}</h1>
           <p>
             <small>
-              {{ page.date | strftime("LLL d, y") }}
+              <time datetime="{{ page.date.toISOString() }}">{{ page.date | strftime("LLL d, y") }}</time>
               {%- if authors[creator].display_name -%}&nbsp;by <strong>{{ authors[creator].display_name }}</strong>{%- endif -%}
               {%- for category in category -%}
-              <a href="/category/{{ category }}" class="responsive-margin">{{ category }}</a>
+              <a href="/category/{{ category | wp_category_slug }}" class="responsive-margin">{{ category }}</a>
               {%- endfor -%}
             </small>
           </p>
@@ -31,7 +31,7 @@
           {%- if tags -%}
             Tags:
             {%- for tag in tags -%}
-            <a href="/tags/{{ tag }}" class="responsive-margin">{{ tag }}</a>
+            <a href="/tags/{{ tag | wp_tag_slug }}" class="responsive-margin">{{ tag }}</a>
             {%- endfor -%}
           {%- endif -%}
           </footer>

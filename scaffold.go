@@ -107,7 +107,7 @@ func writeCategoryData(dataDir string, export *BlogExport) error {
 
 	categories := make(map[string]Category)
 	for _, category := range export.Channel.Categories {
-		categories[category.TermID] = category
+		categories[category.Name] = category
 	}
 
 	return json.NewEncoder(f).Encode(categories)

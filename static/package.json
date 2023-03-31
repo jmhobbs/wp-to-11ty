@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "wp-to-11ty export",
   "main": "",
-  "dependencies": {},
   "devDependencies": {
     "@11ty/eleventy": "^2.0.1",
+    "@sindresorhus/slugify": "^1.1.2",
     "luxon": "^1.21.2"
   },
   "scripts": {
