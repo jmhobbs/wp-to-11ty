@@ -1,49 +1,44 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css">
-    <title>{{ title }} | {{ blog.title }}</title>
-  </head>
-  <body>
-    <header>
-      <a href="/" class="button logo"><span class="icon-home"></span></a>
-      {%- for page in collections.page -%}
-      <a href="{{ page.url }}" class="button">{{ page.data.title }}</a>
-      {%- endfor -%}
-    </header>
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-9">
-          <h1>{{ title }}</h1>
-          <p>
-            <small>
-              <time datetime="{{ page.date.toISOString() }}">{{ page.date | strftime("LLL d, y") }}</time>
-              {%- if authors[creator].display_name -%}&nbsp;by <strong>{{ authors[creator].display_name }}</strong>{%- endif -%}
-              {%- for category in category -%}
-              <a href="/category/{{ category | wp_category_slug }}" class="responsive-margin">{{ category }}</a>
-              {%- endfor -%}
-            </small>
-          </p>
-          {{ content | safe }}
-          <footer>
-          {%- if tags -%}
-            Tags:
-            {%- for tag in tags -%}
-            <a href="/tags/{{ tag | wp_tag_slug }}" class="responsive-margin">{{ tag }}</a>
-            {%- endfor -%}
-          {%- endif -%}
-          </footer>
-        </div>
-        <div class="col-sm-3">
-          <p>{{ blog.description }}</p>
-        </div>
-      </div>
-    </div>
-    <footer>
-      <p style="text-align: right;"><small>{{ blog.title }}</small></p>
-    </footer>
-  </body>
-</html>
+{% include "_header.njk" %}
 
+<h1>{{ title }}</h1>
+<p>
+<small>
+  <time datetime="{{ page.date.toISOString() }}">{{ page.date | strftime("LLL d, y") }}</time>
+  {%- if authors[creator].display_name -%}&nbsp;by <strong>{{ authors[creator].display_name }}</strong>{%- endif -%}
+  {%- for category in category -%}
+  <a href="/category/{{ category | wp_category_slug }}" class="responsive-margin">{{ category }}</a>
+  {%- endfor -%}
+</small>
+</p>
+
+{{ content | safe }}
+
+{%- if comments[wp_id] -%}
+<hr/>
+
+<h4>Comments</h4>
+
+{% for comment in comments[wp_id] %}
+<div class="card fluid">
+<blockquote>
+  <div>{{ comment.content }}</div>
+  <p>
+    <small>
+      {{ comment.author.name }} - {{ comment.date }}
+    </small>
+  </p>
+</blockquote>
+</div>
+{% endfor %}
+{%- endif -%}
+
+<footer>
+  {%- if tags -%}
+  Tags:
+  {%- for tag in tags -%}
+  <a href="/tags/{{ tag | wp_tag_slug }}" class="responsive-margin">{{ tag }}</a>
+  {%- endfor -%}
+  {%- endif -%}
+</footer>
+
+{% include "_footer.njk" %}

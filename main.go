@@ -174,13 +174,26 @@ func writeOutPage(base string, item Item) error {
 		}
 	}
 
+	layout := "layout.njk"
+	if item.PostType == "page" {
+		layout = "page.njk"
+	}
+
 	frontMatter := map[string]interface{}{
 		"type":    item.PostType,
-		"layout":  "layout",
+		"layout":  layout,
 		"title":   item.Title,
 		"date":    postDate.Format(OUTPUT_DATE_FORMAT),
 		"creator": item.Creator,
 		"tags":    tags,
+		"wp_id":   item.PostID,
+	}
+
+	permalink, err := item.PermalinkPath()
+	if err != nil {
+		log.Printf("unable to generate permalink for %s: %v", item.Title, err)
+	} else {
+		frontMatter["permalink"] = permalink
 	}
 
 	for domain, values := range categories {

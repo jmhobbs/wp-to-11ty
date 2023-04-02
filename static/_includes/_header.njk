@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css">
+    {% if title %}
+    <title>{{ title | safe }} | {{ blog.title | safe }}</title>
+    {% else %}
+    <title>{{ blog.title | safe }}</title>
+    {% endif %}
+  </head>
+  <body>
+    <header>
+      <a href="/" class="button logo"><span class="icon-home"></span></a>
+      {%- for page in collections.page -%}
+      <a href="{{ page.url }}" class="button">{{ page.data.title }}</a>
+      {%- endfor -%}
+    </header>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-9">

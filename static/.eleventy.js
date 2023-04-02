@@ -25,6 +25,10 @@ module.exports = function(eleventy) {
     return categories[value]?.nice_name || slugify(value);
   });
 
+  eleventy.addFilter('ref', function (name) {
+    return this.getVariables()[name];
+  });
+
   eleventy.addCollection("page", function (collections) {
     return collections.getAll().filter(function (item) {
       return "page" == item.data.type
@@ -33,7 +37,7 @@ module.exports = function(eleventy) {
 
   eleventy.addCollection("post", function (collections) {
     return collections.getAll().filter(function (item) {
-      return "post" == item.data.type
+      return "page" != item.data.type
     });
   });
 
@@ -61,6 +65,25 @@ module.exports = function(eleventy) {
       .filter(function (category) { return !!(category); })
       .map(function (item) { return item[0] })
       .filter(function (category, index, arr) { return arr.indexOf(category) == index; });
+  });
+
+  // Based on https://github.com/pdehaan/11ty-yearly-archives
+  eleventy.addCollection("postsByYear", collection => {
+    const data = {};
+
+    collection.getAllSorted()
+      .reverse()
+      .filter(function (item) {
+        return "page" != item.data.type
+      })
+      .forEach(post => {
+        const year = post.date.getFullYear();
+        const yearPosts = data[year] || [];
+        yearPosts.push(post);
+        data[year] = yearPosts;
+      });
+
+    return data;
   });
 
   return {};

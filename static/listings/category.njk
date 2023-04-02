@@ -1,0 +1,18 @@
+---
+layout: listing.njk
+pagination:
+  data: collections.categories
+  size: 1
+  alias: category_name
+permalink: /category/{{ category_name | wp_category_slug }}/
+listing:
+  collection: category
+  key: category_name
+eleventyComputed:
+  title: "Category : {{ category_name }}"
+---
+
+{%- if data.categories[ category_name ] -%}
+<p>{{ data.categories[ category_name ].description }}</p>
+{%- endif -%}
+

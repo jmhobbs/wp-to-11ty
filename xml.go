@@ -1,6 +1,10 @@
 package main
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"net/url"
+	"strings"
+)
 
 type BlogExport struct {
 	XMLName xml.Name `xml:"rss"`
@@ -65,6 +69,18 @@ type Item struct {
 		Domain   string `xml:"domain,attr"` // post_tag || category
 		Nicename string `xml:"nicename,attr"`
 	} `xml:"category"`
+	Comments []Comment `xml:"comment"`
+}
+
+func (i Item) PermalinkPath() (string, error) {
+	u, err := url.Parse(i.Link)
+	if err != nil {
+		return "", err
+	}
+	if strings.HasSuffix(u.Path, "/") {
+		return u.Path, nil
+	}
+	return u.Path + "/", nil
 }
 
 type EncodedContent struct {
@@ -89,6 +105,55 @@ type Category struct {
 	Parent      string `xml:"category_parent" json:"parent"`
 	Name        string `xml:"cat_name" json:"name"`
 	Description string `xml:"category_description" json:"description"`
+}
+
+type Comment struct {
+	ID          int    `xml:"comment_id"`
+	Author      string `xml:"comment_author"`
+	AuthorEmail string `xml:"comment_author_email"`
+	AuthorURL   string `xml:"comment_author_url"`
+	AuthorIP    string `xml:"comment_author_IP"`
+	Date        string `xml:"comment_date"`
+	DateGMT     string `xml:"comment_date_gmt"`
+	Content     string `xml:"comment_content"`
+	Approved    int    `xml:"comment_approved"`
+	Type        string `xml:"comment_type"`
+	ParentID    int    `xml:"comment_parent"`
+	UserID      int    `xml:"comment_user_id"`
+}
+
+func (c Comment) toOutputComment() OutputComment {
+	return OutputComment{
+		ID: c.ID,
+		Author: OutputCommentAuthor{
+			Name:  c.Author,
+			Email: c.AuthorEmail,
+			URL:   c.AuthorURL,
+			IP:    c.AuthorIP,
+		},
+		Date:     c.DateGMT,
+		Content:  c.Content,
+		Approved: c.Approved == 1,
+		Type:     c.Type,
+		ParentID: c.ParentID,
+	}
+}
+
+type OutputCommentAuthor struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	URL   string `json:"url"`
+	IP    string `json:"ip"`
+}
+
+type OutputComment struct {
+	ID       int                 `json:"id"`
+	Author   OutputCommentAuthor `json:"author"`
+	Date     string              `json:"date"`
+	Content  string              `json:"content"`
+	Approved bool                `json:"approved"`
+	Type     string              `json"type"`
+	ParentID int                 `json:"parent_id"`
 }
 
 const (

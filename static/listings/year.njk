@@ -1,0 +1,13 @@
+---
+layout: listing.njk
+pagination:
+  data: collections.postsByYear
+  size: 1
+  alias: year
+permalink: "{{ year }}/"
+listing:
+  collection: postsByYear
+  key: year
+eleventyComputed:
+  title: "Archive : {{ year }}"
+---

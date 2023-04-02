@@ -58,6 +58,7 @@ func writeGlobalDataFiles(base string, export *BlogExport) error {
 		writeAuthorData,
 		writeCategoryData,
 		writePostTagData,
+		writeCommentData,
 	} {
 		if err := fn(dataDir, export); err != nil {
 			return err
@@ -126,4 +127,25 @@ func writePostTagData(dataDir string, export *BlogExport) error {
 	}
 
 	return json.NewEncoder(f).Encode(post_tags)
+}
+
+func writeCommentData(dataDir string, export *BlogExport) error {
+	f, err := os.Create(filepath.Join(dataDir, "comments.json"))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	out := make(map[string][]OutputComment)
+	for _, item := range export.Channel.Items {
+		comments := []OutputComment{}
+		for _, comment := range item.Comments {
+			comments = append(comments, comment.toOutputComment())
+		}
+		if len(comments) > 0 {
+			out[item.PostID] = comments
+		}
+	}
+
+	return json.NewEncoder(f).Encode(out)
 }
