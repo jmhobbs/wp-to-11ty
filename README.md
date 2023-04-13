@@ -2,9 +2,11 @@
 
 `wp-to-11ty` is a tool that will take a WordPress XML Export and (attempt to) convert it into a new [Eleventy](https://www.11ty.io/) static site.
 
-This is an early tool, written for my use case, and will possibly (probably) not work for your use case.
+This is an early tool, written for my use case, and will possibly (probably) not work perfectly for your use case, but that's ok!
 
-However!  I'd love to make it better, so please [file an issue](https://github.com/jmhobbs/wp-to-11ty/issues/new) if something doesn't work for you.
+I'd love to make it better, and make it more flexible, but I only have the one blog to export and test it with, so please [file an issue](https://github.com/jmhobbs/wp-to-11ty/issues/new) if something doesn't work for you.
+
+There's a little bit more details on the overall process available [on my blog](https://velvetcache.org/2023/04/05/moving-from-wordpress-to-11ty/)
 
 # Usage
 
