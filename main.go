@@ -30,7 +30,7 @@ func init() {
 func main() {
 	var (
 		outputDirectory *string = flag.String("output", "./site", "Directory to output 11ty site to.")
-		downloadMedia   *bool   = flag.Bool("download-media", false, "Download media files to local filesystem.")
+		downloadMedia   *bool   = flag.Bool("download-media", false, "Download media files to local filesystem. (default false)")
 	)
 
 	flag.Usage = func() {
