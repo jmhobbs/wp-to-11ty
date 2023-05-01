@@ -17,7 +17,6 @@ You can install `wp-to-11ty` with go.  It currently requires version >= 1.20
 ```
 $ go install github.com/jmhobbs/wp-to-11ty@latest
 go: downloading github.com/jmhobbs/wp-to-11ty v0.0.1
-$
 ```
 
 ## Release Binaries
@@ -94,6 +93,71 @@ found 0 vulnerabilities
 
 - Custom ontolgy support
 - Nested categories
+
+# Output
+
+WordPress and 11ty have different opinions about how to manage content, and this tool attempts to squeeze the WordPress model into something that 11ty can consume in a useful way.  The primary means of doing this is through the use of front matter and custom collections.
+
+The guiding principle of this all is attempting to keep your URL structure as close to what WordPress had as possible, because [cool URI's don't change](https://www.w3.org/Provider/Style/URI).
+
+## Custom Front Matter
+
+There are a few custom front matter fields we use.
+
+- `type` is used to indicate the PostType, generally these are `post` or `page`
+- `wp_id` is the original WordPress ID for the content, useful to tie back comments
+- `creator` is the username of the WordPress author that created the entry
+- `category` is the mapping of WordPress categories. It was kept separate from tags intentionally.
+
+## Tags & Categories
+
+Tags and Categories are [very similar tools](https://wordpress.com/support/posts/categories-vs-tags/).  I've chosen to embrace tags as the first class organizational tool, and have assigned them to the 11ty `tags` field for use in [collectons](https://www.11ty.dev/docs/collections/)
+
+Categories are still tracked using the `category` front matter.
+
+Neither tags nor categories are normalized in any way.  There are two data files exported, `categories.json` and `post_tags.json`, which help map them cleanly from their raw form to the correct nice format for URL's.  The filters `wp_tag_slug` and `wp_category_slug` can be used to safely and consistently slugify these.
+
+## Examples
+
+Here are some example front matter taken from exporting my blog.
+
+### Page
+
+```
+---
+creator: admin
+date: 2012-02-05T20:17:47
+layout: page.njk
+permalink: /contact/
+tags: []
+title: Contact
+type: page
+wp_id: "2164"
+---
+```
+
+### Post
+
+```
+---
+category:
+- Geek
+creator: admin
+date: 2019-01-09T23:36:01
+layout: layout.njk
+permalink: /2019/01/09/easy-visual-identification-of-git-short-shas/
+tags:
+- git
+- JavaScript
+title: Easy visual identification of git short sha's.
+type: post
+wp_id: "2845"
+---
+```
+
+## Comments
+
+Comments (and pingbacks) are exported to a data file, `comments.json`, for your use (or not).  They are tied to the `wp_id` value in the front matter of each entry.
 
 # Alternatives
 
