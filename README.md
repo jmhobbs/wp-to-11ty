@@ -98,7 +98,9 @@ found 0 vulnerabilities
 
 WordPress and 11ty have different opinions about how to manage content, and this tool attempts to squeeze the WordPress model into something that 11ty can consume in a useful way.  The primary means of doing this is through the use of front matter and custom collections.
 
-The guiding principle of this all is attempting to keep your URL structure as close to what WordPress had as possible, because [cool URI's don't change](https://www.w3.org/Provider/Style/URI).
+The guiding principle of all of this is attempting to keep your URL structure as close to what WordPress had as possible, because [cool URI's don't change](https://www.w3.org/Provider/Style/URI).
+
+If you'd like to see the output, after my own extended mangling, you can view the git repository for my blog: [jmhobbs/velvetcache.org](https://github.com/jmhobbs/velvetcache.org)
 
 ## Custom Front Matter
 
@@ -111,7 +113,7 @@ There are a few custom front matter fields we use.
 
 ## Tags & Categories
 
-Tags and Categories are [very similar tools](https://wordpress.com/support/posts/categories-vs-tags/).  I've chosen to embrace tags as the first class organizational tool, and have assigned them to the 11ty `tags` field for use in [collectons](https://www.11ty.dev/docs/collections/)
+Tags and Categories are [very similar tools](https://wordpress.com/support/posts/categories-vs-tags/).  I've chosen to embrace tags as the first class organizational tool, and have assigned them to the 11ty `tags` field for use in [collections](https://www.11ty.dev/docs/collections/)
 
 Categories are still tracked using the `category` front matter.
 
