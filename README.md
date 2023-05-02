@@ -14,11 +14,11 @@ There's a little bit more details on the overall process available [on my blog](
 
 ## Release Binaries
 
-You can download a pre-built binary from the [releases page](https://github.com/jmhobbs/wp-to-11ty/releases).  It's built for Mac, Windows and Linux, as amd64 and arm64 on each (where it makes sense)
+You can download a pre-built binary from the [releases page](https://github.com/jmhobbs/wp-to-11ty/releases).  It's currently built for Mac, Windows and Linux, as amd64 and arm64.
 
 ## Go Install
 
-You can also use Gop to install `wp-to-11ty` if you have Go version >= 1.20 installed.
+If a binary is not available for your system ([file an issue](https://github.com/jmhobbs/wp-to-11ty/issues/new?title=Request%20for%20new%20binary)) or you would like to build from source, you can also use Go to install `wp-to-11ty`.  This currently requires Go version >= 1.20
 
 ```
 $ go install github.com/jmhobbs/wp-to-11ty@latest
