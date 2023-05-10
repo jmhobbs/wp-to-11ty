@@ -31,6 +31,16 @@ func TestPathToFileSystem(t *testing.T) {
 			[]string{},
 			"aboot",
 		},
+		{
+			"",
+			[]string{},
+			"",
+		},
+		{
+			"/",
+			[]string{},
+			"",
+		},
 	}
 
 	for _, e := range expect {

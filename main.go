@@ -146,6 +146,11 @@ func writeOutPage(base string, item Item) error {
 	}
 
 	dirs, file := pathToFileSystem(u.Path)
+	if file == "" {
+		file = "index.html"
+	} else {
+		file = fmt.Sprintf("%s.html", file)
+	}
 	dirs = append([]string{base}, dirs...)
 	dirPath := filepath.Join(dirs...)
 
@@ -153,7 +158,7 @@ func writeOutPage(base string, item Item) error {
 		return err
 	}
 
-	f, err := os.Create(filepath.Join(dirPath, fmt.Sprintf("%s.html", file)))
+	f, err := os.Create(filepath.Join(dirPath, file))
 	if err != nil {
 		return err
 	}
@@ -223,8 +228,22 @@ func writeOutPage(base string, item Item) error {
 	return err
 }
 
+func filterEmptyStrings(s []string) []string {
+	var r []string
+	for _, str := range s {
+		if str != "" {
+			r = append(r, str)
+		}
+	}
+	return r
+}
+
 func pathToFileSystem(urlPath string) ([]string, string) {
-	split := strings.Split(urlPath, "/")
+	split := filterEmptyStrings(strings.Split(urlPath, "/"))
+	if len(split) == 0 {
+		return []string{}, ""
+	}
+
 	for i, v := range split {
 		if v == "" {
 			split = append(split[:i], split[i+1:]...)
